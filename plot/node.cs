@@ -12,6 +12,7 @@ namespace plot
 		public double Circumference;
 		public bool locked;
 		public string name = "";
+		public string info = "";
 		public double Radius
 		{
 			get { return Circumference / (Math.PI * 2); }
@@ -21,6 +22,7 @@ namespace plot
 
 	public class edge
 	{
+		public string info = "";
 		public node[] Nodes = new node[2];
 		public PointF[] Vertices
 		{
@@ -38,6 +40,13 @@ namespace plot
 			}
 		}
 		public double length
+		{
+			get
+			{
+				return lengthOnCenter - Nodes[0].Radius - Nodes[1].Radius;
+			}
+		}
+		public double lengthOnCenter
 		{
 			get
 			{

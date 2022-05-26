@@ -31,57 +31,98 @@ namespace plot
 		{
 			this.components = new System.ComponentModel.Container();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.g_node = new System.Windows.Forms.GroupBox();
+			this.t_Y = new System.Windows.Forms.TextBox();
+			this.label10 = new System.Windows.Forms.Label();
+			this.t_X = new System.Windows.Forms.TextBox();
+			this.label4 = new System.Windows.Forms.Label();
 			this.t_circ = new System.Windows.Forms.TextBox();
 			this.label3 = new System.Windows.Forms.Label();
 			this.t_name = new System.Windows.Forms.TextBox();
 			this.label2 = new System.Windows.Forms.Label();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.g_edge = new System.Windows.Forms.GroupBox();
+			this.t_dist = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.splitter1 = new System.Windows.Forms.Splitter();
-			this.panel2 = new System.Windows.Forms.Panel();
+			this.p_view = new System.Windows.Forms.Panel();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.label4 = new System.Windows.Forms.Label();
-			this.t_X = new System.Windows.Forms.TextBox();
-			this.t_Y = new System.Windows.Forms.TextBox();
-			this.label10 = new System.Windows.Forms.Label();
+			this.t_info = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.button1 = new System.Windows.Forms.Button();
 			this.panel1.SuspendLayout();
-			this.groupBox2.SuspendLayout();
-			this.groupBox1.SuspendLayout();
+			this.g_node.SuspendLayout();
+			this.g_edge.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// panel1
 			// 
-			this.panel1.Controls.Add(this.groupBox2);
-			this.panel1.Controls.Add(this.groupBox1);
+			this.panel1.Controls.Add(this.g_node);
+			this.panel1.Controls.Add(this.g_edge);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(182, 1494);
 			this.panel1.TabIndex = 0;
 			// 
-			// groupBox2
+			// g_node
 			// 
-			this.groupBox2.Controls.Add(this.t_Y);
-			this.groupBox2.Controls.Add(this.label10);
-			this.groupBox2.Controls.Add(this.t_X);
-			this.groupBox2.Controls.Add(this.label4);
-			this.groupBox2.Controls.Add(this.t_circ);
-			this.groupBox2.Controls.Add(this.label3);
-			this.groupBox2.Controls.Add(this.t_name);
-			this.groupBox2.Controls.Add(this.label2);
-			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-			this.groupBox2.Location = new System.Drawing.Point(0, 100);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(182, 252);
-			this.groupBox2.TabIndex = 0;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "node";
+			this.g_node.Controls.Add(this.t_info);
+			this.g_node.Controls.Add(this.label5);
+			this.g_node.Controls.Add(this.t_Y);
+			this.g_node.Controls.Add(this.label10);
+			this.g_node.Controls.Add(this.t_X);
+			this.g_node.Controls.Add(this.label4);
+			this.g_node.Controls.Add(this.t_circ);
+			this.g_node.Controls.Add(this.label3);
+			this.g_node.Controls.Add(this.t_name);
+			this.g_node.Controls.Add(this.label2);
+			this.g_node.Dock = System.Windows.Forms.DockStyle.Top;
+			this.g_node.Location = new System.Drawing.Point(0, 100);
+			this.g_node.Name = "g_node";
+			this.g_node.Size = new System.Drawing.Size(182, 344);
+			this.g_node.TabIndex = 0;
+			this.g_node.TabStop = false;
+			this.g_node.Text = "node";
+			// 
+			// t_Y
+			// 
+			this.t_Y.Dock = System.Windows.Forms.DockStyle.Top;
+			this.t_Y.Location = new System.Drawing.Point(3, 128);
+			this.t_Y.Name = "t_Y";
+			this.t_Y.Size = new System.Drawing.Size(176, 20);
+			this.t_Y.TabIndex = 7;
+			// 
+			// label10
+			// 
+			this.label10.AutoSize = true;
+			this.label10.Dock = System.Windows.Forms.DockStyle.Top;
+			this.label10.Location = new System.Drawing.Point(3, 115);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(14, 13);
+			this.label10.TabIndex = 6;
+			this.label10.Text = "Y";
+			// 
+			// t_X
+			// 
+			this.t_X.Dock = System.Windows.Forms.DockStyle.Top;
+			this.t_X.Location = new System.Drawing.Point(3, 95);
+			this.t_X.Name = "t_X";
+			this.t_X.Size = new System.Drawing.Size(176, 20);
+			this.t_X.TabIndex = 5;
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Dock = System.Windows.Forms.DockStyle.Top;
+			this.label4.Location = new System.Drawing.Point(3, 82);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(14, 13);
+			this.label4.TabIndex = 4;
+			this.label4.Text = "X";
 			// 
 			// t_circ
 			// 
@@ -121,26 +162,27 @@ namespace plot
 			this.label2.TabIndex = 1;
 			this.label2.Text = "name";
 			// 
-			// groupBox1
+			// g_edge
 			// 
-			this.groupBox1.Controls.Add(this.textBox1);
-			this.groupBox1.Controls.Add(this.label1);
-			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.groupBox1.Location = new System.Drawing.Point(0, 0);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(182, 100);
-			this.groupBox1.TabIndex = 0;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "edge";
+			this.g_edge.Controls.Add(this.button1);
+			this.g_edge.Controls.Add(this.t_dist);
+			this.g_edge.Controls.Add(this.label1);
+			this.g_edge.Dock = System.Windows.Forms.DockStyle.Top;
+			this.g_edge.Location = new System.Drawing.Point(0, 0);
+			this.g_edge.Name = "g_edge";
+			this.g_edge.Size = new System.Drawing.Size(182, 100);
+			this.g_edge.TabIndex = 0;
+			this.g_edge.TabStop = false;
+			this.g_edge.Text = "edge";
 			// 
-			// textBox1
+			// t_dist
 			// 
-			this.textBox1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.textBox1.Location = new System.Drawing.Point(3, 29);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(176, 20);
-			this.textBox1.TabIndex = 0;
-			this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
+			this.t_dist.Dock = System.Windows.Forms.DockStyle.Top;
+			this.t_dist.Location = new System.Drawing.Point(3, 29);
+			this.t_dist.Name = "t_dist";
+			this.t_dist.Size = new System.Drawing.Size(176, 20);
+			this.t_dist.TabIndex = 0;
+			this.t_dist.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
 			// 
 			// label1
 			// 
@@ -160,18 +202,18 @@ namespace plot
 			this.splitter1.TabIndex = 1;
 			this.splitter1.TabStop = false;
 			// 
-			// panel2
+			// p_view
 			// 
-			this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel2.Location = new System.Drawing.Point(185, 0);
-			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(1533, 1494);
-			this.panel2.TabIndex = 2;
-			this.panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
-			this.panel2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseDoubleClick);
-			this.panel2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseDown);
-			this.panel2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseMove);
-			this.panel2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseUp);
+			this.p_view.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.p_view.Location = new System.Drawing.Point(185, 0);
+			this.p_view.Name = "p_view";
+			this.p_view.Size = new System.Drawing.Size(1533, 1494);
+			this.p_view.TabIndex = 2;
+			this.p_view.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
+			this.p_view.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseDoubleClick);
+			this.p_view.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseDown);
+			this.p_view.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseMove);
+			this.p_view.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseUp);
 			// 
 			// timer1
 			// 
@@ -199,48 +241,42 @@ namespace plot
 			this.contextMenuStrip2.Size = new System.Drawing.Size(61, 4);
 			this.contextMenuStrip2.Text = "Add";
 			// 
-			// label4
+			// t_info
 			// 
-			this.label4.AutoSize = true;
-			this.label4.Dock = System.Windows.Forms.DockStyle.Top;
-			this.label4.Location = new System.Drawing.Point(3, 82);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(14, 13);
-			this.label4.TabIndex = 4;
-			this.label4.Text = "X";
+			this.t_info.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.t_info.Location = new System.Drawing.Point(3, 161);
+			this.t_info.Multiline = true;
+			this.t_info.Name = "t_info";
+			this.t_info.Size = new System.Drawing.Size(176, 180);
+			this.t_info.TabIndex = 0;
+			this.t_info.KeyDown += new System.Windows.Forms.KeyEventHandler(this.t_info_KeyDown);
 			// 
-			// t_X
+			// label5
 			// 
-			this.t_X.Dock = System.Windows.Forms.DockStyle.Top;
-			this.t_X.Location = new System.Drawing.Point(3, 95);
-			this.t_X.Name = "t_X";
-			this.t_X.Size = new System.Drawing.Size(176, 20);
-			this.t_X.TabIndex = 5;
+			this.label5.AutoSize = true;
+			this.label5.Dock = System.Windows.Forms.DockStyle.Top;
+			this.label5.Location = new System.Drawing.Point(3, 148);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(24, 13);
+			this.label5.TabIndex = 8;
+			this.label5.Text = "info";
 			// 
-			// t_Y
+			// button1
 			// 
-			this.t_Y.Dock = System.Windows.Forms.DockStyle.Top;
-			this.t_Y.Location = new System.Drawing.Point(3, 128);
-			this.t_Y.Name = "t_Y";
-			this.t_Y.Size = new System.Drawing.Size(176, 20);
-			this.t_Y.TabIndex = 7;
-			// 
-			// label10
-			// 
-			this.label10.AutoSize = true;
-			this.label10.Dock = System.Windows.Forms.DockStyle.Top;
-			this.label10.Location = new System.Drawing.Point(3, 115);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(14, 13);
-			this.label10.TabIndex = 6;
-			this.label10.Text = "Y";
+			this.button1.Location = new System.Drawing.Point(3, 55);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(54, 22);
+			this.button1.TabIndex = 0;
+			this.button1.Text = "snap";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1718, 1494);
-			this.Controls.Add(this.panel2);
+			this.Controls.Add(this.p_view);
 			this.Controls.Add(this.splitter1);
 			this.Controls.Add(this.panel1);
 			this.Name = "Form1";
@@ -248,10 +284,10 @@ namespace plot
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.panel1.ResumeLayout(false);
-			this.groupBox2.ResumeLayout(false);
-			this.groupBox2.PerformLayout();
-			this.groupBox1.ResumeLayout(false);
-			this.groupBox1.PerformLayout();
+			this.g_node.ResumeLayout(false);
+			this.g_node.PerformLayout();
+			this.g_edge.ResumeLayout(false);
+			this.g_edge.PerformLayout();
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.ResumeLayout(false);
 
@@ -261,14 +297,14 @@ namespace plot
 
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Splitter splitter1;
-		private System.Windows.Forms.Panel panel2;
+		private System.Windows.Forms.Panel p_view;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.TextBox textBox1;
-		private System.Windows.Forms.GroupBox groupBox2;
+		private System.Windows.Forms.GroupBox g_edge;
+		private System.Windows.Forms.TextBox t_dist;
+		private System.Windows.Forms.GroupBox g_node;
 		private System.Windows.Forms.TextBox t_name;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label1;
@@ -278,6 +314,9 @@ namespace plot
 		private System.Windows.Forms.Label label10;
 		private System.Windows.Forms.TextBox t_X;
 		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.TextBox t_info;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.Button button1;
 	}
 }
 

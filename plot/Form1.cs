@@ -13,6 +13,7 @@ namespace plot
 {
 	public partial class Form1 : Form
 	{
+		public const int selectDistance = 15;
 		public List<node> nodes = new List<node>();
 		public List<edge> edges = new List<edge>();
 
@@ -41,7 +42,8 @@ namespace plot
 					var c = double.Parse(n.Attribute("c").Value);
 					var name = n.Attribute("n").Value;
 					var locked = bool.Parse(n.Attribute("l").Value);
-					var nn = new node { X = x, Y = y, Circumference = c, name = name, locked = locked };
+					var info = n.Attribute("i").Value;
+					var nn = new node { X = x, Y = y, Circumference = c, name = name, locked = locked, info = info };
 					nodes.Add(nn);
 				}
 
@@ -50,11 +52,9 @@ namespace plot
 					var a = int.Parse(n.Attribute("a").Value);
 					var b = int.Parse(n.Attribute("b").Value);
 					var d = double.Parse(n.Attribute("d").Value);
+					var info = n.Attribute("i").Value;
+					var edge = new edge { Nodes = new node[] { nodes[a], nodes[b] }, Distance = d, info = info };
 
-					var edge = new edge();
-					edge.Nodes[0] = nodes[a];
-					edge.Nodes[1] = nodes[b];
-					edge.Distance = d;
 					edges.Add(edge);
 				}
 				return true;
@@ -74,6 +74,7 @@ namespace plot
 				e.SetAttributeValue("c", n.Circumference);
 				e.SetAttributeValue("n", n.name);
 				e.SetAttributeValue("l", n.locked);
+				e.SetAttributeValue("i", n.info);
 				file.Add(e);
 			}
 			foreach (var edge in edges)
@@ -82,7 +83,7 @@ namespace plot
 				e.SetAttributeValue("a", nodes.IndexOf(edge.Nodes[0]));
 				e.SetAttributeValue("b", nodes.IndexOf(edge.Nodes[1]));
 				e.SetAttributeValue("d", edge.Distance);
-
+				e.SetAttributeValue("i", edge.info);
 
 				file.Add(e);
 			}
@@ -119,7 +120,12 @@ namespace plot
 				t_X.Text = $"{(int)(n.X)}";
 				t_Y.Text = $"{(int)(n.Y)}";
 				t_name.Text = n.name;
+				t_info.Text = n.info;
 			}
+			g_edge.Enabled = selectedEdge != null;
+			g_node.Enabled = selectedNode != null;
+			g_edge.Visible = selectedEdge != null;
+			g_node.Visible = selectedNode != null;
 		}
 
 		void selectEdge(edge e)
@@ -130,8 +136,12 @@ namespace plot
 
 			if (selectedEdge != null)
 			{
-				textBox1.Text = $"{(int)(e.Distance)}";
+				t_dist.Text = $"{(int)(e.Distance)}";
 			}
+			g_edge.Enabled = selectedEdge != null;
+			g_node.Enabled = selectedNode != null;
+			g_edge.Visible = selectedEdge != null;
+			g_node.Visible = selectedNode != null;
 		}
 
 
@@ -146,9 +156,9 @@ namespace plot
 
 			font = Font;
 
-			panel2.GetType().GetMethod("SetStyle",
+			p_view.GetType().GetMethod("SetStyle",
 				System.Reflection.BindingFlags.Instance |
-				System.Reflection.BindingFlags.NonPublic).Invoke(panel2,
+				System.Reflection.BindingFlags.NonPublic).Invoke(p_view,
 			new object[]
 			{
 				System.Windows.Forms.ControlStyles.UserPaint |
@@ -157,10 +167,11 @@ namespace plot
 			});
 
 
-			panel2.MouseWheel += new MouseEventHandler(this.panel1_MouseWheel);
+			p_view.MouseWheel += new MouseEventHandler(this.panel1_MouseWheel);
 
-			(panel2 as Control).KeyDown += Form1_KeyDown;
-			(panel2 as Control).KeyUp += Form1_KeyUp;
+			(p_view as Control).KeyDown += Form1_KeyDown;
+			(p_view as Control).KeyUp += Form1_KeyUp;
+			selectNode(null);
 		}
 
 
@@ -206,7 +217,7 @@ namespace plot
 				dx /= l;
 				dy /= l;
 
-				var dist = e.Distance - e.Nodes[0].Radius - e.Nodes[1].Radius;
+				var dist = e.Distance + e.Nodes[0].Radius + e.Nodes[1].Radius;
 
 
 				dx *= l - (dist * 0.5);
@@ -262,7 +273,7 @@ namespace plot
 
 			{
 				var tl = FromView(new PointF());
-				var br = FromView(new PointF(panel2.Width, panel2.Height));
+				var br = FromView(new PointF(p_view.Width, p_view.Height));
 
 				var gridSize = 100; // cm
 
@@ -274,12 +285,12 @@ namespace plot
 				for (int x = x1; x < x2; x += gridSize)
 				{
 					var p = ToView(x, 0);
-					g.DrawLine(Pens.LightGray, p.X, 0, p.X, panel2.Height);
+					g.DrawLine(Pens.LightGray, p.X, 0, p.X, p_view.Height);
 				}
 				for (int y = y1; y < y2; y += gridSize)
 				{
 					var p = ToView(0, y);
-					g.DrawLine(Pens.LightGray, 0, p.Y, panel2.Width, p.Y);
+					g.DrawLine(Pens.LightGray, 0, p.Y, p_view.Width, p.Y);
 				}
 			}
 
@@ -361,26 +372,38 @@ namespace plot
 			{
 				simulate();
 			}
-			panel2.Invalidate();
+			p_view.Invalidate();
 		}
 
 		private void panel2_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			var p = PointToScreen(new Point(e.Location.X + panel2.Location.X, e.Location.Y + panel2.Location.Y));
+			var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 			var pf = FromView(new PointF(e.Location.X, e.Location.Y));
 			nodes.Add(new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false });
 		}
 
-		node PickNode(PointF p)
+		node PickNode(PointF p, bool view = false)
 		{
 			foreach (node n in nodes)
 			{
-				var np = ToView(new PointF((float)n.X, (float)n.Y));
-				var dx = np.X - p.X;
-				var dy = np.Y - p.Y;
-				var d = Math.Sqrt(dx * dx + dy * dy);
-				if (d < 10)
-					return n;
+				
+				{
+					var np = ToView(new PointF((float)n.X, (float)n.Y));
+					var dx = np.X - p.X;
+					var dy = np.Y - p.Y;
+					var d = Math.Sqrt(dx * dx + dy * dy);
+					if (d < selectDistance)
+						return n;
+				}
+				
+				{
+					var np = FromView(p);
+					var dx = np.X - n.X;
+					var dy = np.Y - n.Y;
+					var d = Math.Sqrt(dx * dx + dy * dy);
+					if (d < n.Radius)
+						return n;
+				}
 			}
 			return null;
 		}
@@ -413,7 +436,7 @@ namespace plot
 				d1y -= d0y;
 				var dist = (float)Math.Sqrt(d1x * d1x + d1y * d1y);
 
-				if (dist < 10)
+				if (dist < selectDistance)
 					return e;
 			}
 			return null;
@@ -421,7 +444,7 @@ namespace plot
 
 		private void panel2_MouseDown(object sender, MouseEventArgs e)
 		{
-			panel2.Focus();
+			p_view.Focus();
 			if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
 			{
 				var edge = PickEdge(new PointF(e.X, e.Y));
@@ -432,7 +455,7 @@ namespace plot
 
 				if (selectedNode != null || selectedEdge != null)
 				{
-					var p = PointToScreen(new Point(e.Location.X + panel2.Location.X, e.Location.Y + panel2.Location.Y));
+					var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 					if (e.Button == MouseButtons.Right)
 					{
 						contextMenuStrip1.Show(p);
@@ -442,8 +465,8 @@ namespace plot
 					{
 						if (selectedEdge != null)
 						{
-							textBox1.Focus();
-							textBox1.SelectAll();
+							t_dist.Focus();
+							t_dist.SelectAll();
 						}
 
 						if (selectedNode != null)
@@ -470,7 +493,7 @@ namespace plot
 			{
 				if (selectedEdge != null)
 				{
-					double.TryParse(textBox1.Text, out selectedEdge.Distance);
+					double.TryParse(t_dist.Text, out selectedEdge.Distance);
 				}
 			}
 		}
@@ -500,8 +523,8 @@ namespace plot
 						if (!found)
 						{
 							var newedge = new edge { Nodes = new node[] { dragNode, other } };
-							selectedEdge = newedge;
 							edges.Add(newedge);
+							selectEdge(newedge);
 						}
 					}
 				}
@@ -580,6 +603,25 @@ namespace plot
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			SavePlot();
+		}
+
+		private void t_info_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+			{
+				if (selectedNode != null)
+				{
+					selectedNode.info = t_info.Text;
+				}
+			}
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			if (selectedEdge != null)
+			{
+				selectedEdge.Distance = selectedEdge.length;
+			}
 		}
 
 		private void Form1_KeyDown(object sender, KeyEventArgs e)
