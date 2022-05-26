@@ -32,6 +32,10 @@ namespace plot
 			this.components = new System.ComponentModel.Container();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.g_node = new System.Windows.Forms.GroupBox();
+			this.t_info = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.c_locked = new System.Windows.Forms.CheckBox();
+			this.label6 = new System.Windows.Forms.Label();
 			this.t_Y = new System.Windows.Forms.TextBox();
 			this.label10 = new System.Windows.Forms.Label();
 			this.t_X = new System.Windows.Forms.TextBox();
@@ -41,6 +45,7 @@ namespace plot
 			this.t_name = new System.Windows.Forms.TextBox();
 			this.label2 = new System.Windows.Forms.Label();
 			this.g_edge = new System.Windows.Forms.GroupBox();
+			this.button1 = new System.Windows.Forms.Button();
 			this.t_dist = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.splitter1 = new System.Windows.Forms.Splitter();
@@ -49,19 +54,20 @@ namespace plot
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.t_info = new System.Windows.Forms.TextBox();
-			this.label5 = new System.Windows.Forms.Label();
-			this.button1 = new System.Windows.Forms.Button();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.panel1.SuspendLayout();
 			this.g_node.SuspendLayout();
 			this.g_edge.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
+			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// panel1
 			// 
 			this.panel1.Controls.Add(this.g_node);
 			this.panel1.Controls.Add(this.g_edge);
+			this.panel1.Controls.Add(this.groupBox1);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Name = "panel1";
@@ -72,6 +78,8 @@ namespace plot
 			// 
 			this.g_node.Controls.Add(this.t_info);
 			this.g_node.Controls.Add(this.label5);
+			this.g_node.Controls.Add(this.c_locked);
+			this.g_node.Controls.Add(this.label6);
 			this.g_node.Controls.Add(this.t_Y);
 			this.g_node.Controls.Add(this.label10);
 			this.g_node.Controls.Add(this.t_X);
@@ -81,12 +89,53 @@ namespace plot
 			this.g_node.Controls.Add(this.t_name);
 			this.g_node.Controls.Add(this.label2);
 			this.g_node.Dock = System.Windows.Forms.DockStyle.Top;
-			this.g_node.Location = new System.Drawing.Point(0, 100);
+			this.g_node.Location = new System.Drawing.Point(0, 177);
 			this.g_node.Name = "g_node";
 			this.g_node.Size = new System.Drawing.Size(182, 344);
 			this.g_node.TabIndex = 0;
 			this.g_node.TabStop = false;
 			this.g_node.Text = "node";
+			// 
+			// t_info
+			// 
+			this.t_info.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.t_info.Location = new System.Drawing.Point(3, 188);
+			this.t_info.Multiline = true;
+			this.t_info.Name = "t_info";
+			this.t_info.Size = new System.Drawing.Size(176, 153);
+			this.t_info.TabIndex = 0;
+			this.t_info.KeyDown += new System.Windows.Forms.KeyEventHandler(this.t_info_KeyDown);
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Dock = System.Windows.Forms.DockStyle.Top;
+			this.label5.Location = new System.Drawing.Point(3, 175);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(24, 13);
+			this.label5.TabIndex = 8;
+			this.label5.Text = "info";
+			// 
+			// c_locked
+			// 
+			this.c_locked.AutoSize = true;
+			this.c_locked.Dock = System.Windows.Forms.DockStyle.Top;
+			this.c_locked.Location = new System.Drawing.Point(3, 161);
+			this.c_locked.Name = "c_locked";
+			this.c_locked.Size = new System.Drawing.Size(176, 14);
+			this.c_locked.TabIndex = 0;
+			this.c_locked.UseVisualStyleBackColor = true;
+			this.c_locked.CheckedChanged += new System.EventHandler(this.c_locked_CheckedChanged);
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Dock = System.Windows.Forms.DockStyle.Top;
+			this.label6.Location = new System.Drawing.Point(3, 148);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(39, 13);
+			this.label6.TabIndex = 9;
+			this.label6.Text = "locked";
 			// 
 			// t_Y
 			// 
@@ -95,6 +144,7 @@ namespace plot
 			this.t_Y.Name = "t_Y";
 			this.t_Y.Size = new System.Drawing.Size(176, 20);
 			this.t_Y.TabIndex = 7;
+			this.t_Y.KeyDown += new System.Windows.Forms.KeyEventHandler(this.t_Y_KeyDown);
 			// 
 			// label10
 			// 
@@ -113,6 +163,7 @@ namespace plot
 			this.t_X.Name = "t_X";
 			this.t_X.Size = new System.Drawing.Size(176, 20);
 			this.t_X.TabIndex = 5;
+			this.t_X.KeyDown += new System.Windows.Forms.KeyEventHandler(this.t_X_KeyDown);
 			// 
 			// label4
 			// 
@@ -168,12 +219,22 @@ namespace plot
 			this.g_edge.Controls.Add(this.t_dist);
 			this.g_edge.Controls.Add(this.label1);
 			this.g_edge.Dock = System.Windows.Forms.DockStyle.Top;
-			this.g_edge.Location = new System.Drawing.Point(0, 0);
+			this.g_edge.Location = new System.Drawing.Point(0, 77);
 			this.g_edge.Name = "g_edge";
 			this.g_edge.Size = new System.Drawing.Size(182, 100);
 			this.g_edge.TabIndex = 0;
 			this.g_edge.TabStop = false;
 			this.g_edge.Text = "edge";
+			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(3, 55);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(54, 22);
+			this.button1.TabIndex = 0;
+			this.button1.Text = "snap";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// t_dist
 			// 
@@ -241,35 +302,25 @@ namespace plot
 			this.contextMenuStrip2.Size = new System.Drawing.Size(61, 4);
 			this.contextMenuStrip2.Text = "Add";
 			// 
-			// t_info
+			// groupBox1
 			// 
-			this.t_info.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.t_info.Location = new System.Drawing.Point(3, 161);
-			this.t_info.Multiline = true;
-			this.t_info.Name = "t_info";
-			this.t_info.Size = new System.Drawing.Size(176, 180);
-			this.t_info.TabIndex = 0;
-			this.t_info.KeyDown += new System.Windows.Forms.KeyEventHandler(this.t_info_KeyDown);
+			this.groupBox1.Controls.Add(this.textBox1);
+			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.groupBox1.Location = new System.Drawing.Point(0, 0);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(182, 77);
+			this.groupBox1.TabIndex = 1;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "search";
 			// 
-			// label5
+			// textBox1
 			// 
-			this.label5.AutoSize = true;
-			this.label5.Dock = System.Windows.Forms.DockStyle.Top;
-			this.label5.Location = new System.Drawing.Point(3, 148);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(24, 13);
-			this.label5.TabIndex = 8;
-			this.label5.Text = "info";
-			// 
-			// button1
-			// 
-			this.button1.Location = new System.Drawing.Point(3, 55);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(54, 22);
-			this.button1.TabIndex = 0;
-			this.button1.Text = "snap";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
+			this.textBox1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.textBox1.Location = new System.Drawing.Point(3, 16);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(176, 20);
+			this.textBox1.TabIndex = 0;
+			this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
 			// 
 			// Form1
 			// 
@@ -289,6 +340,8 @@ namespace plot
 			this.g_edge.ResumeLayout(false);
 			this.g_edge.PerformLayout();
 			this.contextMenuStrip1.ResumeLayout(false);
+			this.groupBox1.ResumeLayout(false);
+			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -317,6 +370,10 @@ namespace plot
 		private System.Windows.Forms.TextBox t_info;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.CheckBox c_locked;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.TextBox textBox1;
 	}
 }
 

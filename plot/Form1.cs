@@ -23,6 +23,7 @@ namespace plot
 		bool ctrl;
 
 		Font font;
+		Font fontB;
 
 		Matrix view = new Matrix();
 
@@ -121,6 +122,7 @@ namespace plot
 				t_Y.Text = $"{(int)(n.Y)}";
 				t_name.Text = n.name;
 				t_info.Text = n.info;
+				c_locked.Checked = n.locked;
 			}
 			g_edge.Enabled = selectedEdge != null;
 			g_node.Enabled = selectedNode != null;
@@ -155,6 +157,13 @@ namespace plot
 			view.Scale(0.2f, 0.2f);
 
 			font = Font;
+			FontFamily fontFamily = new FontFamily("Arial");
+			fontB = new Font(
+			   fontFamily,
+			   16,
+			   FontStyle.Bold,
+			   GraphicsUnit.Pixel);
+
 
 			p_view.GetType().GetMethod("SetStyle",
 				System.Reflection.BindingFlags.Instance |
@@ -302,6 +311,13 @@ namespace plot
 					new Pen(new SolidBrush(Color.Red), t) :
 					new Pen(new SolidBrush(Color.Black), t);
 
+				var brush = Brushes.Black;
+				if (!n.visible)
+				{
+					pen = new Pen(new SolidBrush(Color.LightGray), t);
+					brush = Brushes.LightGray;
+				}
+
 				var p = ToView(new PointF((float)n.X, (float)n.Y));
 				if (n.Circumference == 0.0)
 				{
@@ -322,22 +338,33 @@ namespace plot
 					g.DrawEllipse(pen, new RectangleF(new PointF(p1.X, p1.Y), new SizeF(p2.X - p1.X, p2.Y - p1.Y)));
 				}
 
-				g.DrawString(n.name, font, Brushes.Black, p.X, p.Y - 10, textFormat);
+				if (n.Circumference != 0)
+				{
+					g.DrawString(n.name, fontB, brush, p.X, p.Y - 10, textFormat);
+				}
 			}
 
 			foreach (var n in edges)
 			{
+				float t = n.Nodes[0].locked && n.Nodes[1].locked ? 2.0f : 1.0f; // thickness
 				var pen = selectedEdge == n ?
-					new Pen(new SolidBrush(Color.Red)) :
-					new Pen(new SolidBrush(Color.Black));
+					new Pen(new SolidBrush(Color.Red), t) :
+					new Pen(new SolidBrush(Color.Black), t);
+
+				var brush = Brushes.Black;
+
+				if (!n.Nodes[0].visible || !n.Nodes[1].visible)
+				{
+					pen = new Pen(new SolidBrush(Color.LightGray), t);
+					brush = Brushes.LightGray;
+				}
+
+
 				var p1 = ToView(n.Vertices[0]);
 				var p2 = ToView(n.Vertices[1]);
 
 				g.DrawLine(pen, p1, p2);
-			}
 
-			foreach (var n in edges)
-			{
 				var cx = (n.Nodes[0].X + n.Nodes[1].X) * 0.5;
 				var cy = (n.Nodes[0].Y + n.Nodes[1].Y) * 0.5;
 
@@ -351,7 +378,7 @@ namespace plot
 				{
 					str = $"({(int)(n.length)}cm)";
 				}
-				g.DrawString(str, font, Brushes.Black, p);
+				g.DrawString(str, font, brush, p);
 			}
 
 			if (dragNode != null)
@@ -377,16 +404,19 @@ namespace plot
 
 		private void panel2_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
+			if (selectedNode != null || selectedEdge != null)
+				return;
 			var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 			var pf = FromView(new PointF(e.Location.X, e.Location.Y));
-			nodes.Add(new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false });
+			nodes.Add(new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{ nodes.Count}" });
 		}
 
 		node PickNode(PointF p, bool view = false)
 		{
 			foreach (node n in nodes)
 			{
-				
+				if (!n.visible)
+					continue;
 				{
 					var np = ToView(new PointF((float)n.X, (float)n.Y));
 					var dx = np.X - p.X;
@@ -395,7 +425,7 @@ namespace plot
 					if (d < selectDistance)
 						return n;
 				}
-				
+
 				{
 					var np = FromView(p);
 					var dx = np.X - n.X;
@@ -411,6 +441,8 @@ namespace plot
 		{
 			foreach (var e in edges)
 			{
+				if (!e.Nodes[0].visible || !e.Nodes[1].visible)
+					continue;
 				var v0 = ToView(e.Vertices[0]);
 				var v1 = ToView(e.Vertices[1]);
 
@@ -471,8 +503,8 @@ namespace plot
 
 						if (selectedNode != null)
 						{
-							t_name.Focus();
-							t_name.SelectAll();
+							t_circ.Focus();
+							t_circ.SelectAll();
 						}
 					}
 				}
@@ -542,6 +574,7 @@ namespace plot
 				{
 					dragNode.X = np.X;
 					dragNode.Y = np.Y;
+					selectNode(null);
 				}
 			}
 			else
@@ -570,7 +603,7 @@ namespace plot
 			float s2 = view.Elements[0];
 			view.Translate(p.X, p.Y);
 			float t = -e.Delta / 120.0f;
-			float s = 1.0f - t * 0.25f;
+			float s = 1.0f - t * 0.125f;
 
 			view.Scale(s, s, MatrixOrder.Prepend);
 
@@ -607,12 +640,9 @@ namespace plot
 
 		private void t_info_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.Enter)
+			if (selectedNode != null)
 			{
-				if (selectedNode != null)
-				{
-					selectedNode.info = t_info.Text;
-				}
+				selectedNode.info = t_info.Text;
 			}
 		}
 
@@ -624,10 +654,55 @@ namespace plot
 			}
 		}
 
+		private void c_locked_CheckedChanged(object sender, EventArgs e)
+		{
+			if (selectedNode != null)
+			{
+				selectedNode.locked = c_locked.Checked;
+			}
+		}
+
+		private void t_X_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+			{
+				if (selectedNode != null)
+				{
+					double.TryParse(t_Y.Text, out selectedNode.X);
+				}
+			}
+		}
+
+		private void t_Y_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+			{
+				if (selectedNode != null)
+				{
+					double.TryParse(t_Y.Text, out selectedNode.Y);
+				}
+			}
+		}
+
+		private void textBox1_TextChanged(object sender, EventArgs e)
+		{
+			foreach (node n in nodes)
+			{
+				n.visible = n.MatchInfo(textBox1.Text);
+			}
+		}
+
 		private void Form1_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.ControlKey)
 				ctrl = true;
+
+			if (ctrl && e.KeyCode == Keys.F)
+			{
+				ctrl = false;
+				textBox1.Focus();
+				textBox1.SelectAll();
+			}
 
 			if (e.KeyCode == Keys.Home)
 			{
