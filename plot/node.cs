@@ -16,7 +16,7 @@ namespace plot
 		public string info = "";
 		public double Radius
 		{
-			get { return Circumference / Math.Tau; }
+			get { return Circumference / (Math.PI * 2); }
 		}
 		public bool MatchInfo(string key)
 		{
