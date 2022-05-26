@@ -8,6 +8,7 @@ namespace plot
 {
 	public class node
 	{
+		public bool visible=true;
 		public double X, Y;
 		public double Circumference;
 		public bool locked;
@@ -16,6 +17,11 @@ namespace plot
 		public double Radius
 		{
 			get { return Circumference / Math.Tau; }
+		}
+		public bool MatchInfo(string key)
+		{
+			var infos = info.Split('\n');
+			return info.Contains(key) || name.Contains(key);
 		}
 	}
 
