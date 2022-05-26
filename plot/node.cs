@@ -15,7 +15,7 @@ namespace plot
 		public string info = "";
 		public double Radius
 		{
-			get { return Circumference / (Math.PI * 2); }
+			get { return Circumference / Math.Tau; }
 		}
 	}
 
