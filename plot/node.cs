@@ -21,7 +21,7 @@ namespace plot
 		public bool MatchInfo(string key)
 		{
 			var infos = info.Split('\n');
-			return info.Contains(key);
+			return info.Contains(key) || name.Contains(key);
 		}
 	}
 

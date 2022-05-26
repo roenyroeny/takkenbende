@@ -20,7 +20,6 @@ namespace plot
 		int mouseX, mouseY;
 		node selectedNode, dragNode;
 		edge selectedEdge;
-		bool ctrl;
 
 		Font font;
 		Font fontB;
@@ -209,8 +208,18 @@ namespace plot
 
 		void simulate()
 		{
+
+			foreach (node n in nodes)
+			{
+				if (n.Circumference < 0)
+					n.Circumference = 0;
+			}
+
 			foreach (edge e in edges)
 			{
+				if (e.Distance < 0)
+					e.Distance = 0;
+
 				if (e.Distance == 0)
 					continue;
 
@@ -395,7 +404,7 @@ namespace plot
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			if (!ctrl)
+			if (ModifierKeys != Keys.Control)
 			{
 				simulate();
 			}
@@ -493,7 +502,7 @@ namespace plot
 						contextMenuStrip1.Show(p);
 					}
 
-					if (!ctrl)
+					if (ModifierKeys != Keys.Control)
 					{
 						if (selectedEdge != null)
 						{
@@ -532,7 +541,7 @@ namespace plot
 
 		private void panel2_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (!ctrl)
+			if (ModifierKeys != Keys.Control)
 			{
 				if (dragNode != null)
 				{
@@ -568,7 +577,7 @@ namespace plot
 		private void panel2_MouseMove(object sender, MouseEventArgs e)
 		{
 			var np = FromView(new PointF((float)e.X, (float)e.Y));
-			if (ctrl)
+			if (ModifierKeys == Keys.Control)
 			{
 				if (dragNode != null && !dragNode.locked)
 				{
@@ -598,16 +607,34 @@ namespace plot
 		}
 		private void panel1_MouseWheel(object sender, MouseEventArgs e)
 		{
-			var p = FromView(new PointF(mouseX, mouseY));
+			if (ModifierKeys == Keys.Control)
+			{
+				if (selectedEdge != null)
+				{
+					selectedEdge.Distance -= e.Delta / 12;
+					if (selectedEdge.Distance < 0)
+						selectedEdge.Distance = 0;
+				}
+				if (selectedNode != null)
+				{
+					selectedNode.Circumference += e.Delta / 12;
+					if (selectedNode.Circumference < 0)
+						selectedNode.Circumference = 0;
+				}
+			}
+			else
+			{
+				var p = FromView(new PointF(mouseX, mouseY));
 
-			float s2 = view.Elements[0];
-			view.Translate(p.X, p.Y);
-			float t = -e.Delta / 120.0f;
-			float s = 1.0f - t * 0.125f;
+				float s2 = view.Elements[0];
+				view.Translate(p.X, p.Y);
+				float t = -e.Delta / 120.0f;
+				float s = 1.0f - t * 0.125f;
 
-			view.Scale(s, s, MatrixOrder.Prepend);
+				view.Scale(s, s, MatrixOrder.Prepend);
 
-			view.Translate(-p.X, -p.Y);
+				view.Translate(-p.X, -p.Y);
+			}
 		}
 
 
@@ -694,12 +721,9 @@ namespace plot
 
 		private void Form1_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.ControlKey)
-				ctrl = true;
-
-			if (ctrl && e.KeyCode == Keys.F)
+			
+			if (ModifierKeys == Keys.Control && e.KeyCode == Keys.F)
 			{
-				ctrl = false;
 				textBox1.Focus();
 				textBox1.SelectAll();
 			}
@@ -712,8 +736,6 @@ namespace plot
 		}
 		private void Form1_KeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.ControlKey)
-				ctrl = false;
 		}
 	}
 }
