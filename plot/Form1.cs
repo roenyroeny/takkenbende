@@ -47,13 +47,24 @@ namespace plot
 					nodes.Add(nn);
 				}
 
-				foreach (var n in e.Elements("edge"))
+				foreach (var n in e.Elements("edge_n"))
 				{
 					var a = int.Parse(n.Attribute("a").Value);
 					var b = int.Parse(n.Attribute("b").Value);
 					var d = double.Parse(n.Attribute("d").Value);
 					var info = n.Attribute("i").Value;
-					var edge = new edge { Nodes = new node[] { nodes[a], nodes[b] }, Distance = d, info = info };
+					var edge = new edgeNodes { nodes = new node[] { nodes[a], nodes[b] }, Distance = d, info = info };
+
+					edges.Add(edge);
+				}
+
+				foreach (var n in e.Elements("edge_e"))
+				{
+					var a = int.Parse(n.Attribute("a").Value);
+					var b = int.Parse(n.Attribute("b").Value);
+					var d = double.Parse(n.Attribute("d").Value);
+					var info = n.Attribute("i").Value;
+					var edge = new edgeNodeEdge { Node = nodes[a], Edge = edges[b], Distance = d, info = info };
 
 					edges.Add(edge);
 				}
@@ -79,33 +90,47 @@ namespace plot
 			}
 			foreach (var edge in edges)
 			{
-				XElement e = new XElement("edge");
-				e.SetAttributeValue("a", nodes.IndexOf(edge.Nodes[0]));
-				e.SetAttributeValue("b", nodes.IndexOf(edge.Nodes[1]));
-				e.SetAttributeValue("d", edge.Distance);
-				e.SetAttributeValue("i", edge.info);
-
-				file.Add(e);
+				var edg = edge as edgeNodes;
+				if (edg != null)
+				{
+					XElement e = new XElement("edge_n");
+					e.SetAttributeValue("a", nodes.IndexOf(edg.Nodes[0]));
+					e.SetAttributeValue("b", nodes.IndexOf(edg.Nodes[1]));
+					e.SetAttributeValue("d", edg.Distance);
+					e.SetAttributeValue("i", edg.info);
+					file.Add(e);
+				}
+				else
+				{
+					var edg_e = edge as edgeNodeEdge;
+					XElement e = new XElement("edge_e");
+					e.SetAttributeValue("a", nodes.IndexOf(edg_e.Node));
+					e.SetAttributeValue("b", edges.IndexOf(edg_e.Edge));
+					e.SetAttributeValue("d", edg_e.Distance);
+					e.SetAttributeValue("i", edg_e.info);
+					file.Add(e);
+				}
 			}
 			file.Save("plot.xml");
 			return true;
 		}
 
-		void removeNode(node n)
+		void removeNode(node node)
 		{
-			if (n == selectedNode)
+			if (node == selectedNode)
 				selectNode(null);
-			if (n == dragNode)
+			if (node == dragNode)
 				dragNode = null;
 
-			edges = edges.Where(e => e.Nodes[0] != n && e.Nodes[1] != n).ToList();
+			edges = edges.Where(e => !e.Nodes.Contains(node)).ToList();
 
-			nodes.Remove(n);
+			nodes.Remove(node);
 		}
 
-		void removeEdge(edge e)
+		void removeEdge(edge edge)
 		{
-			edges.Remove(e);
+			edges = edges.Where(e => !e.Edges.Contains(edge)).ToList();
+			edges.Remove(edge);
 		}
 
 		void selectNode(node n)
@@ -197,18 +222,17 @@ namespace plot
 
 				nodes.AddRange(new node[] { A, B, C, D, E, F });
 
-				edges.Add(new edge { Nodes = new node[] { A, B } });
-				edges.Add(new edge { Nodes = new node[] { B, C } });
-				edges.Add(new edge { Nodes = new node[] { C, D } });
-				edges.Add(new edge { Nodes = new node[] { D, E } });
-				edges.Add(new edge { Nodes = new node[] { E, F } });
-				edges.Add(new edge { Nodes = new node[] { F, A } });
+				edges.Add(new edgeNodes { nodes = new node[] { A, B } });
+				edges.Add(new edgeNodes { nodes = new node[] { B, C } });
+				edges.Add(new edgeNodes { nodes = new node[] { C, D } });
+				edges.Add(new edgeNodes { nodes = new node[] { D, E } });
+				edges.Add(new edgeNodes { nodes = new node[] { E, F } });
+				edges.Add(new edgeNodes { nodes = new node[] { F, A } });
 			}
 		}
 
 		void simulate()
 		{
-
 			foreach (node n in nodes)
 			{
 				if (n.Circumference < 0)
@@ -223,11 +247,13 @@ namespace plot
 				if (e.Distance == 0)
 					continue;
 
-				var cx = (e.Nodes[0].X + e.Nodes[1].X) * 0.5;
-				var cy = (e.Nodes[0].Y + e.Nodes[1].Y) * 0.5;
+				var v = e.Vertices;
 
-				var dx = (e.Nodes[0].X - e.Nodes[1].X) * 0.5;
-				var dy = (e.Nodes[0].Y - e.Nodes[1].Y) * 0.5;
+				var cx = (v[0].X + v[1].X) * 0.5;
+				var cy = (v[0].Y + v[1].Y) * 0.5;
+
+				var dx = (v[0].X - v[1].X) * 0.5;
+				var dy = (v[0].Y - v[1].Y) * 0.5;
 
 				var l = Math.Sqrt(dx * dx + dy * dy);
 
@@ -235,7 +261,7 @@ namespace plot
 				dx /= l;
 				dy /= l;
 
-				var dist = e.Distance + e.Nodes[0].Radius + e.Nodes[1].Radius;
+				var dist = e.Distance;
 
 
 				dx *= l - (dist * 0.5);
@@ -244,15 +270,29 @@ namespace plot
 				dx *= 0.4f; // smooth
 				dy *= 0.4f; // smooth
 
-				if (!e.Nodes[0].locked)
+				var en = e as edgeNodes;
+				if (en != null)
 				{
-					e.Nodes[0].X -= dx;
-					e.Nodes[0].Y -= dy;
+					if (!en.nodes[0].locked)
+					{
+						en.nodes[0].X -= dx;
+						en.nodes[0].Y -= dy;
+					}
+					if (!en.nodes[1].locked)
+					{
+						en.nodes[1].X += dx;
+						en.nodes[1].Y += dy;
+					}
 				}
-				if (!e.Nodes[1].locked)
+
+				var ee = e as edgeNodeEdge;
+				if (ee != null)
 				{
-					e.Nodes[1].X += dx;
-					e.Nodes[1].Y += dy;
+					if (!ee.Node.locked)
+					{
+						ee.Node.X -= dx;
+						ee.Node.Y -= dy;
+					}
 				}
 			}
 		}
@@ -332,7 +372,6 @@ namespace plot
 				{
 					var size = 20;
 
-
 					g.DrawLine(pen,
 						(float)(p.X - size / 2.0), (float)(p.Y - size / 2.0),
 						(float)(p.X + size / 2.0), (float)(p.Y + size / 2.0));
@@ -362,20 +401,20 @@ namespace plot
 
 				var brush = Brushes.Black;
 
-				if (!n.Nodes[0].visible || !n.Nodes[1].visible)
+				if (!n.Nodes.All(a => a.visible))
 				{
 					pen = new Pen(new SolidBrush(Color.LightGray), t);
 					brush = Brushes.LightGray;
 				}
-
 
 				var p1 = ToView(n.Vertices[0]);
 				var p2 = ToView(n.Vertices[1]);
 
 				g.DrawLine(pen, p1, p2);
 
-				var cx = (n.Nodes[0].X + n.Nodes[1].X) * 0.5;
-				var cy = (n.Nodes[0].Y + n.Nodes[1].Y) * 0.5;
+				var v = n.Vertices;
+				var cx = (v[0].X + v[1].X) * 0.5;
+				var cy = (v[0].Y + v[1].Y) * 0.5;
 
 				var p = ToView(cx, cy);
 				var str = "";
@@ -417,7 +456,7 @@ namespace plot
 				return;
 			var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 			var pf = FromView(new PointF(e.Location.X, e.Location.Y));
-			nodes.Add(new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{ nodes.Count}" });
+			nodes.Add(new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{nodes.Count}" });
 		}
 
 		node PickNode(PointF p, bool view = false)
@@ -450,7 +489,7 @@ namespace plot
 		{
 			foreach (var e in edges)
 			{
-				if (!e.Nodes[0].visible || !e.Nodes[1].visible)
+				if (!e.Nodes.All(a => a.visible))
 					continue;
 				var v0 = ToView(e.Vertices[0]);
 				var v1 = ToView(e.Vertices[1]);
@@ -546,27 +585,25 @@ namespace plot
 				if (dragNode != null)
 				{
 					var other = PickNode(new PointF(e.X, e.Y));
-					if (other != dragNode && other != null)
-					{
-						// find duplicates
-						bool found = false;
-						foreach (edge edge in edges)
-						{
-							int c = 0;
-							if (edge.Nodes[0] == other || edge.Nodes[0] == dragNode)
-								c++;
-							if (edge.Nodes[1] == other || edge.Nodes[1] == dragNode)
-								c++;
-							if (c >= 2)
-								found = true;
-						}
+					var othere = PickEdge(new PointF(e.X, e.Y));
 
-						if (!found)
-						{
-							var newedge = new edge { Nodes = new node[] { dragNode, other } };
-							edges.Add(newedge);
-							selectEdge(newedge);
-						}
+					if (other == dragNode)
+						other = null;
+					if (othere == null || othere.Nodes.Contains(dragNode) || !othere.Pure)
+						othere = null;
+
+					if (other != null)
+					{
+						var newedge = new edgeNodes { nodes = new node[] { dragNode, other } };
+						edges.Add(newedge);
+						selectEdge(newedge);
+
+					}
+					else if (othere != null)
+					{
+						var newedge = new edgeNodeEdge { Node = dragNode, Edge = othere };
+						edges.Add(newedge);
+						selectEdge(newedge);
 					}
 				}
 			}
@@ -677,7 +714,7 @@ namespace plot
 		{
 			if (selectedEdge != null)
 			{
-				selectedEdge.Distance = selectedEdge.length;
+				selectedEdge.Distance = selectedEdge.lengthOnCenter - selectedEdge.Radii[0] - selectedEdge.Radii[1];
 			}
 		}
 
@@ -721,7 +758,7 @@ namespace plot
 
 		private void Form1_KeyDown(object sender, KeyEventArgs e)
 		{
-			
+
 			if (ModifierKeys == Keys.Control && e.KeyCode == Keys.F)
 			{
 				textBox1.Focus();
