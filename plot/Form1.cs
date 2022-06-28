@@ -394,7 +394,7 @@ namespace plot
 
 			foreach (var n in edges)
 			{
-				float t = n.Nodes[0].locked && n.Nodes[1].locked ? 2.0f : 1.0f; // thickness
+				float t = n.Nodes.All(a=>a.locked) ? 2.0f : 1.0f; // thickness
 				var pen = selectedEdge == n ?
 					new Pen(new SolidBrush(Color.Red), t) :
 					new Pen(new SolidBrush(Color.Black), t);
