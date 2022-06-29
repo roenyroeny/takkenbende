@@ -139,6 +139,11 @@ namespace plot
 			if (selectedEdge != null && selectedNode != null)
 				selectEdge(null);
 
+			g_edge.Enabled = selectedEdge != null;
+			g_node.Enabled = selectedNode != null;
+			g_edge.Visible = selectedEdge != null;
+			g_node.Visible = selectedNode != null;
+
 			if (selectedNode != null)
 			{
 				t_circ.Text = $"{(int)(n.Circumference)}";
@@ -147,11 +152,8 @@ namespace plot
 				t_name.Text = n.name;
 				t_info.Text = n.info;
 				c_locked.Checked = n.locked;
+				t_circ.Focus();
 			}
-			g_edge.Enabled = selectedEdge != null;
-			g_node.Enabled = selectedNode != null;
-			g_edge.Visible = selectedEdge != null;
-			g_node.Visible = selectedNode != null;
 		}
 
 		void selectEdge(edge e)
@@ -160,14 +162,16 @@ namespace plot
 			if (selectedEdge != null && selectedNode != null)
 				selectNode(null);
 
-			if (selectedEdge != null)
-			{
-				t_dist.Text = $"{(int)(e.Distance)}";
-			}
 			g_edge.Enabled = selectedEdge != null;
 			g_node.Enabled = selectedNode != null;
 			g_edge.Visible = selectedEdge != null;
 			g_node.Visible = selectedNode != null;
+
+			if (selectedEdge != null)
+			{
+				t_dist.Text = $"{(int)(e.Distance)}";
+				t_dist.Focus();
+			}
 		}
 
 
@@ -231,8 +235,9 @@ namespace plot
 			}
 		}
 
-		void simulate()
+		bool simulate()
 		{
+			bool anychanged = false;
 			foreach (node n in nodes)
 			{
 				if (n.Circumference < 0)
@@ -270,6 +275,9 @@ namespace plot
 				dx *= 0.4f; // smooth
 				dy *= 0.4f; // smooth
 
+				if (Math.Abs(dx) >= 1 || Math.Abs(dy) >= 1)
+					anychanged = true;
+
 				var en = e as edgeNodes;
 				if (en != null)
 				{
@@ -295,6 +303,7 @@ namespace plot
 					}
 				}
 			}
+			return anychanged;
 		}
 
 		PointF ToView(PointF p)
@@ -394,7 +403,7 @@ namespace plot
 
 			foreach (var n in edges)
 			{
-				float t = n.Nodes.All(a=>a.locked) ? 2.0f : 1.0f; // thickness
+				float t = n.Nodes.All(a => a.locked) ? 2.0f : 1.0f; // thickness
 				var pen = selectedEdge == n ?
 					new Pen(new SolidBrush(Color.Red), t) :
 					new Pen(new SolidBrush(Color.Black), t);
@@ -456,7 +465,9 @@ namespace plot
 				return;
 			var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 			var pf = FromView(new PointF(e.Location.X, e.Location.Y));
-			nodes.Add(new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{nodes.Count}" });
+			var n = new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{nodes.Count}" };
+			nodes.Add(n);
+			selectNode(n);
 		}
 
 		node PickNode(PointF p, bool view = false)
