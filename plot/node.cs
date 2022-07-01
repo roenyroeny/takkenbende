@@ -34,6 +34,31 @@ namespace plot
 		public abstract node[] Nodes { get; }
 		public abstract edge[] Edges { get; }
 
+		public float Stress
+		{
+			get
+			{
+				if (Distance == 0)
+					return 0.0f;
+				var v = Vertices;
+				double dx = v[0].X - v[1].X;
+				double dy = v[0].Y - v[1].Y;
+				float l = (float)Math.Sqrt(dx * dx + dy * dy);
+
+				float f;
+				if (l < Distance)
+				{
+					f = l / (float)Distance;
+				}
+				else
+				{
+					f = (float)Distance / l;
+				}
+
+				return Math.Min((1.0f - f) * 10.0f, 1.0f);
+			}
+		}
+
 		public double Distance = 0;
 		public PointF NearestPoint(PointF p)
 		{

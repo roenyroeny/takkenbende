@@ -403,10 +403,13 @@ namespace plot
 
 			foreach (var n in edges)
 			{
-				float t = n.Nodes.All(a => a.locked) ? 2.0f : 1.0f; // thickness
+				float t = n.Nodes.All(a => a.locked) ? 3.0f : 2.0f; // thickness
+
+				byte stress = (byte)(n.Stress * 255.0f);
+
 				var pen = selectedEdge == n ?
 					new Pen(new SolidBrush(Color.Red), t) :
-					new Pen(new SolidBrush(Color.Black), t);
+					new Pen(new SolidBrush(Color.FromArgb(255, stress, 0,0)), t);
 
 				var brush = Brushes.Black;
 
@@ -653,13 +656,14 @@ namespace plot
 			mouseX = e.X;
 			mouseY = e.Y;
 		}
+
 		private void panel1_MouseWheel(object sender, MouseEventArgs e)
 		{
 			if (ModifierKeys == Keys.Control)
 			{
 				if (selectedEdge != null)
 				{
-					selectedEdge.Distance -= e.Delta / 12;
+					selectedEdge.Distance += e.Delta / 12;
 					if (selectedEdge.Distance < 0)
 						selectedEdge.Distance = 0;
 				}
@@ -684,7 +688,6 @@ namespace plot
 				view.Translate(-p.X, -p.Y);
 			}
 		}
-
 
 		private void t_circ_KeyDown(object sender, KeyEventArgs e)
 		{
@@ -782,6 +785,7 @@ namespace plot
 				view.Scale(0.25f, 0.25f);
 			}
 		}
+
 		private void Form1_KeyUp(object sender, KeyEventArgs e)
 		{
 		}
