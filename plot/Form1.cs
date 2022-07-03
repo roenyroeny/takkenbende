@@ -403,7 +403,7 @@ namespace plot
 
 			foreach (var n in edges)
 			{
-				float t = n.Nodes.All(a => a.locked) ? 3.0f : 2.0f; // thickness
+				float t = n.Nodes.All(a => a.locked) ? 3.0f : 1.0f; // thickness
 
 				byte stress = (byte)(n.Stress * 255.0f);
 
