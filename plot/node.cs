@@ -3,9 +3,143 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Xml.Linq;
 
 namespace plot
 {
+	public class graph
+	{
+		public List<node> nodes = new List<node>();
+		public List<edge> edges = new List<edge>();
+
+		public static graph FromXML(XElement e)
+		{
+			graph g = new graph();
+			g.nodes.Clear();
+			g.edges.Clear();
+			try
+			{
+				foreach (var n in e.Elements("node"))
+				{
+					var x = double.Parse(n.Attribute("x").Value);
+					var y = double.Parse(n.Attribute("y").Value);
+					var c = double.Parse(n.Attribute("c").Value);
+					var name = n.Attribute("n").Value;
+					var locked = bool.Parse(n.Attribute("l").Value);
+					var info = n.Attribute("i").Value;
+					var nn = new node { X = x, Y = y, Circumference = c, name = name, locked = locked, info = info };
+					g.nodes.Add(nn);
+				}
+
+				foreach (var n in e.Elements("edge_n"))
+				{
+					var a = int.Parse(n.Attribute("a").Value);
+					var b = int.Parse(n.Attribute("b").Value);
+					var d = double.Parse(n.Attribute("d").Value);
+					var info = n.Attribute("i").Value;
+					var edge = new edgeNodes { nodes = new node[] { g.nodes[a], g.nodes[b] }, Distance = d, info = info };
+
+					g.edges.Add(edge);
+				}
+
+				foreach (var n in e.Elements("edge_e"))
+				{
+					var a = int.Parse(n.Attribute("a").Value);
+					var b = int.Parse(n.Attribute("b").Value);
+					var d = double.Parse(n.Attribute("d").Value);
+					var info = n.Attribute("i").Value;
+					var edge = new edgeNodeEdge { Node = g.nodes[a], Edge = g.edges[b], Distance = d, info = info };
+
+					g.edges.Add(edge);
+				}
+				return g;
+			}
+			catch { }
+			return null;
+		}
+
+		public XElement XML
+		{
+			get
+			{
+				XElement file = new XElement("plot");
+				foreach (var n in nodes)
+				{
+					XElement e = new XElement("node");
+					e.SetAttributeValue("x", n.X);
+					e.SetAttributeValue("y", n.Y);
+					e.SetAttributeValue("c", n.Circumference);
+					e.SetAttributeValue("n", n.name);
+					e.SetAttributeValue("l", n.locked);
+					e.SetAttributeValue("i", n.info);
+					file.Add(e);
+				}
+				foreach (var edge in edges)
+				{
+					var edg = edge as edgeNodes;
+					if (edg != null)
+					{
+						XElement e = new XElement("edge_n");
+						e.SetAttributeValue("a", nodes.IndexOf(edg.Nodes[0]));
+						e.SetAttributeValue("b", nodes.IndexOf(edg.Nodes[1]));
+						e.SetAttributeValue("d", edg.Distance);
+						e.SetAttributeValue("i", edg.info);
+						file.Add(e);
+					}
+					else
+					{
+						var edg_e = edge as edgeNodeEdge;
+						XElement e = new XElement("edge_e");
+						e.SetAttributeValue("a", nodes.IndexOf(edg_e.Node));
+						e.SetAttributeValue("b", edges.IndexOf(edg_e.Edge));
+						e.SetAttributeValue("d", edg_e.Distance);
+						e.SetAttributeValue("i", edg_e.info);
+						file.Add(e);
+					}
+				}
+				file.Save("plot.xml");
+				return file;
+			}
+		}
+
+		public string OBJ
+		{
+			get
+			{
+				ObjBuilder builder = new ObjBuilder();
+
+				foreach (node n in nodes)
+				{
+					builder.addCircleAsFace((float)n.X, (float)n.Y, (float)n.Radius);
+				}
+
+				foreach (edge e in edges)
+				{
+					if (!e.Nodes.All(a => a.locked))
+						continue;
+					var v = e.Vertices;
+					builder.AddLine(v[0].X, v[0].Y, v[1].X, v[1].Y);
+				}
+
+				return builder.emit();
+			}
+		}
+
+		public void removeNode(node node)
+		{
+			edges = edges.Where(e => !e.Nodes.Contains(node)).ToList();
+
+			nodes.Remove(node);
+		}
+
+		public void removeEdge(edge edge)
+		{
+			edges = edges.Where(e => !e.Edges.Contains(edge)).ToList();
+			edges.Remove(edge);
+		}
+
+
+	}
 	public class node
 	{
 		public bool visible = true;

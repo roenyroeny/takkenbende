@@ -14,60 +14,25 @@ namespace plot
 	public partial class Form1 : Form
 	{
 		public const int selectDistance = 15;
-		public List<node> nodes = new List<node>();
-		public List<edge> edges = new List<edge>();
 
 		int mouseX, mouseY;
 		node selectedNode, dragNode;
 		edge selectedEdge;
+
+		graph graph = null;
 
 		Font font;
 		Font fontB;
 
 		Matrix view = new Matrix();
 
-
-
 		bool LoadPlot()
 		{
-			nodes.Clear();
-			edges.Clear();
+
 			try
 			{
 				XElement e = XElement.Load("plot.xml");
-				foreach (var n in e.Elements("node"))
-				{
-					var x = double.Parse(n.Attribute("x").Value);
-					var y = double.Parse(n.Attribute("y").Value);
-					var c = double.Parse(n.Attribute("c").Value);
-					var name = n.Attribute("n").Value;
-					var locked = bool.Parse(n.Attribute("l").Value);
-					var info = n.Attribute("i").Value;
-					var nn = new node { X = x, Y = y, Circumference = c, name = name, locked = locked, info = info };
-					nodes.Add(nn);
-				}
-
-				foreach (var n in e.Elements("edge_n"))
-				{
-					var a = int.Parse(n.Attribute("a").Value);
-					var b = int.Parse(n.Attribute("b").Value);
-					var d = double.Parse(n.Attribute("d").Value);
-					var info = n.Attribute("i").Value;
-					var edge = new edgeNodes { nodes = new node[] { nodes[a], nodes[b] }, Distance = d, info = info };
-
-					edges.Add(edge);
-				}
-
-				foreach (var n in e.Elements("edge_e"))
-				{
-					var a = int.Parse(n.Attribute("a").Value);
-					var b = int.Parse(n.Attribute("b").Value);
-					var d = double.Parse(n.Attribute("d").Value);
-					var info = n.Attribute("i").Value;
-					var edge = new edgeNodeEdge { Node = nodes[a], Edge = edges[b], Distance = d, info = info };
-
-					edges.Add(edge);
-				}
+				graph = graph.FromXML(e);
 				return true;
 			}
 			catch { }
@@ -76,42 +41,7 @@ namespace plot
 
 		bool SavePlot()
 		{
-			XElement file = new XElement("plot");
-			foreach (var n in nodes)
-			{
-				XElement e = new XElement("node");
-				e.SetAttributeValue("x", n.X);
-				e.SetAttributeValue("y", n.Y);
-				e.SetAttributeValue("c", n.Circumference);
-				e.SetAttributeValue("n", n.name);
-				e.SetAttributeValue("l", n.locked);
-				e.SetAttributeValue("i", n.info);
-				file.Add(e);
-			}
-			foreach (var edge in edges)
-			{
-				var edg = edge as edgeNodes;
-				if (edg != null)
-				{
-					XElement e = new XElement("edge_n");
-					e.SetAttributeValue("a", nodes.IndexOf(edg.Nodes[0]));
-					e.SetAttributeValue("b", nodes.IndexOf(edg.Nodes[1]));
-					e.SetAttributeValue("d", edg.Distance);
-					e.SetAttributeValue("i", edg.info);
-					file.Add(e);
-				}
-				else
-				{
-					var edg_e = edge as edgeNodeEdge;
-					XElement e = new XElement("edge_e");
-					e.SetAttributeValue("a", nodes.IndexOf(edg_e.Node));
-					e.SetAttributeValue("b", edges.IndexOf(edg_e.Edge));
-					e.SetAttributeValue("d", edg_e.Distance);
-					e.SetAttributeValue("i", edg_e.info);
-					file.Add(e);
-				}
-			}
-			file.Save("plot.xml");
+			graph.XML.Save("plot.xml");
 			return true;
 		}
 
@@ -121,16 +51,12 @@ namespace plot
 				selectNode(null);
 			if (node == dragNode)
 				dragNode = null;
-
-			edges = edges.Where(e => !e.Nodes.Contains(node)).ToList();
-
-			nodes.Remove(node);
+			graph.removeNode(node);
 		}
 
 		void removeEdge(edge edge)
 		{
-			edges = edges.Where(e => !e.Edges.Contains(edge)).ToList();
-			edges.Remove(edge);
+			graph.removeEdge(edge);
 		}
 
 		void selectNode(node n)
@@ -207,7 +133,7 @@ namespace plot
 			p_view.MouseWheel += new MouseEventHandler(this.panel1_MouseWheel);
 
 			(p_view as Control).KeyDown += Form1_KeyDown;
-			(p_view as Control).KeyUp += Form1_KeyUp;
+
 			selectNode(null);
 		}
 
@@ -217,6 +143,7 @@ namespace plot
 		{
 			if (!LoadPlot())
 			{
+				graph = new graph();
 				var A = new node { name = "A", X = 0, Y = 0, Circumference = 0, locked = true };
 				var B = new node { name = "B", X = 4700, Y = 0, Circumference = 0, locked = true };
 				var C = new node { name = "C", X = 4700, Y = 3900, Circumference = 0, locked = true };
@@ -224,27 +151,27 @@ namespace plot
 				var E = new node { name = "E", X = 855, Y = 5343, Circumference = 0, locked = true };
 				var F = new node { name = "F", X = 0, Y = 5935, Circumference = 0, locked = true };
 
-				nodes.AddRange(new node[] { A, B, C, D, E, F });
+				graph.nodes.AddRange(new node[] { A, B, C, D, E, F });
 
-				edges.Add(new edgeNodes { nodes = new node[] { A, B } });
-				edges.Add(new edgeNodes { nodes = new node[] { B, C } });
-				edges.Add(new edgeNodes { nodes = new node[] { C, D } });
-				edges.Add(new edgeNodes { nodes = new node[] { D, E } });
-				edges.Add(new edgeNodes { nodes = new node[] { E, F } });
-				edges.Add(new edgeNodes { nodes = new node[] { F, A } });
+				graph.edges.Add(new edgeNodes { nodes = new node[] { A, B } });
+				graph.edges.Add(new edgeNodes { nodes = new node[] { B, C } });
+				graph.edges.Add(new edgeNodes { nodes = new node[] { C, D } });
+				graph.edges.Add(new edgeNodes { nodes = new node[] { D, E } });
+				graph.edges.Add(new edgeNodes { nodes = new node[] { E, F } });
+				graph.edges.Add(new edgeNodes { nodes = new node[] { F, A } });
 			}
 		}
 
 		bool simulate()
 		{
 			bool anychanged = false;
-			foreach (node n in nodes)
+			foreach (node n in graph.nodes)
 			{
 				if (n.Circumference < 0)
 					n.Circumference = 0;
 			}
 
-			foreach (edge e in edges)
+			foreach (edge e in graph.edges)
 			{
 				if (e.Distance < 0)
 					e.Distance = 0;
@@ -331,16 +258,22 @@ namespace plot
 
 		private void panel2_Paint(object sender, PaintEventArgs e)
 		{
+			var r = new RectangleF(0, 0, p_view.Width, p_view.Height);
+			Draw(e.Graphics, r, true);
+		}
+
+		public void Draw(Graphics g, RectangleF rect, bool drawControls)
+		{
 			StringFormat textFormat = new StringFormat();
 			textFormat.Alignment = StringAlignment.Center;
 			// textFormat. = StringAlignment.Center;
-			var g = e.Graphics;
+
 			g.Clear(Color.White);
 
 
 			{
-				var tl = FromView(new PointF());
-				var br = FromView(new PointF(p_view.Width, p_view.Height));
+				var tl = FromView(new PointF(rect.X, rect.Y));
+				var br = FromView(new PointF(rect.X + rect.Width, rect.Y + rect.Height));
 
 				var gridSize = 100; // cm
 
@@ -362,7 +295,7 @@ namespace plot
 			}
 
 
-			foreach (var n in nodes)
+			foreach (var n in graph.nodes)
 			{
 				float t = n.locked ? 2.0f : 1.0f; // thickness
 				var pen = selectedNode == n ?
@@ -395,21 +328,25 @@ namespace plot
 					g.DrawEllipse(pen, new RectangleF(new PointF(p1.X, p1.Y), new SizeF(p2.X - p1.X, p2.Y - p1.Y)));
 				}
 
-				if (n.Circumference != 0)
+				if (n.Circumference != 0 && checkBox2.Checked)
 				{
 					g.DrawString(n.name, fontB, brush, p.X, p.Y - 10, textFormat);
 				}
 			}
 
-			foreach (var n in edges)
+			foreach (var n in graph.edges)
 			{
-				float t = n.Nodes.All(a => a.locked) ? 3.0f : 1.0f; // thickness
+				var locked = n.Nodes.All(a => a.locked);
+				float t = locked ? 3.0f : 1.0f; // thickness
+
+				if (!locked && !checkBox1.Checked)
+					continue;
 
 				byte stress = (byte)(n.Stress * 255.0f);
 
 				var pen = selectedEdge == n ?
 					new Pen(new SolidBrush(Color.Red), t) :
-					new Pen(new SolidBrush(Color.FromArgb(255, stress, 0,0)), t);
+					new Pen(new SolidBrush(Color.FromArgb(255, stress, 0, 0)), t);
 
 				var brush = Brushes.Black;
 
@@ -424,24 +361,27 @@ namespace plot
 
 				g.DrawLine(pen, p1, p2);
 
-				var v = n.Vertices;
-				var cx = (v[0].X + v[1].X) * 0.5;
-				var cy = (v[0].Y + v[1].Y) * 0.5;
+				if (checkBox2.Checked)
+				{
+					var v = n.Vertices;
+					var cx = (v[0].X + v[1].X) * 0.5;
+					var cy = (v[0].Y + v[1].Y) * 0.5;
 
-				var p = ToView(cx, cy);
-				var str = "";
-				if (n.Distance != 0)
-				{
-					str = $"{(int)(n.Distance)}cm";
+					var p = ToView(cx, cy);
+					var str = "";
+					if (n.Distance != 0)
+					{
+						str = $"{(int)(n.Distance)}cm";
+					}
+					else
+					{
+						str = $"({(int)(n.length)}cm)";
+					}
+					g.DrawString(str, font, brush, p);
 				}
-				else
-				{
-					str = $"({(int)(n.length)}cm)";
-				}
-				g.DrawString(str, font, brush, p);
 			}
 
-			if (dragNode != null)
+			if (dragNode != null && drawControls)
 			{
 				var p1 = ToView(new PointF((float)dragNode.X, (float)dragNode.Y));
 				var p2 = (new PointF((float)mouseX, (float)mouseY));
@@ -468,14 +408,14 @@ namespace plot
 				return;
 			var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 			var pf = FromView(new PointF(e.Location.X, e.Location.Y));
-			var n = new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{nodes.Count}" };
-			nodes.Add(n);
+			var n = new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{graph.nodes.Count}" };
+			graph.nodes.Add(n);
 			selectNode(n);
 		}
 
 		node PickNode(PointF p, bool view = false)
 		{
-			foreach (node n in nodes)
+			foreach (node n in graph.nodes)
 			{
 				if (!n.visible)
 					continue;
@@ -501,7 +441,7 @@ namespace plot
 		}
 		edge PickEdge(PointF p)
 		{
-			foreach (var e in edges)
+			foreach (var e in graph.edges)
 			{
 				if (!e.Nodes.All(a => a.visible))
 					continue;
@@ -609,14 +549,14 @@ namespace plot
 					if (other != null)
 					{
 						var newedge = new edgeNodes { nodes = new node[] { dragNode, other } };
-						edges.Add(newedge);
+						graph.edges.Add(newedge);
 						selectEdge(newedge);
 
 					}
 					else if (othere != null)
 					{
 						var newedge = new edgeNodeEdge { Node = dragNode, Edge = othere };
-						edges.Add(newedge);
+						graph.edges.Add(newedge);
 						selectEdge(newedge);
 					}
 				}
@@ -764,9 +704,43 @@ namespace plot
 
 		private void textBox1_TextChanged(object sender, EventArgs e)
 		{
-			foreach (node n in nodes)
+			foreach (node n in graph.nodes)
 			{
 				n.visible = n.MatchInfo(textBox1.Text);
+			}
+		}
+
+		private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
+		{
+			var v = view.Clone();
+			view.Scale(0.8f, 0.8f);
+
+			Draw(e.Graphics, e.PageBounds, false);
+
+			view = v;
+		}
+
+		private void saveOBJToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+			saveFileDialog1.Title = "Export OBJ file";
+			saveFileDialog1.CheckPathExists = true;
+			saveFileDialog1.DefaultExt = "obj";
+			saveFileDialog1.Filter = "OBJ files (*.obj)|All Files(*.*)";
+			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				System.IO.File.WriteAllText(saveFileDialog1.FileName, graph.OBJ);
+			}
+
+		}
+
+		private void printToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			PrintDialog pdi = new PrintDialog();
+			pdi.Document = printDocument1;
+			if (pdi.ShowDialog() == DialogResult.OK)
+			{
+				printDocument1.Print();
 			}
 		}
 
@@ -784,10 +758,6 @@ namespace plot
 				view.Reset();
 				view.Scale(0.25f, 0.25f);
 			}
-		}
-
-		private void Form1_KeyUp(object sender, KeyEventArgs e)
-		{
 		}
 	}
 }
