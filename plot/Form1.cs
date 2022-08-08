@@ -15,6 +15,9 @@ namespace plot
 	{
 		public const int selectDistance = 15;
 
+		Stack<string> undoStack = new Stack<string>();
+		Stack<string> redoStack = new Stack<string>();
+
 		int mouseX, mouseY;
 		node selectedNode, dragNode;
 		edge selectedEdge;
@@ -25,6 +28,47 @@ namespace plot
 		Font fontB;
 
 		Matrix view = new Matrix();
+
+		void PushUndoStack()
+		{
+			redoStack.Clear();
+			undoStack.Push(graph.XML.ToString());
+			LimitStacks();
+		}
+
+		bool PopUndoStack()
+		{
+			if (undoStack.Count > 0)
+			{
+				var e = undoStack.Pop();
+				redoStack.Push(graph.XML.ToString());
+				graph = graph.FromXML(XElement.Parse(e));
+				LimitStacks();
+				return true;
+			}
+			return false;
+		}
+
+		bool PopRedoStack()
+		{
+			if (redoStack.Count > 0)
+			{
+				var e = redoStack.Pop();
+				undoStack.Push(graph.XML.ToString());
+				graph = graph.FromXML(XElement.Parse(e));
+				LimitStacks();
+				return true;
+			}
+			return false;
+		}
+
+		void LimitStacks()
+		{
+			while (undoStack.Count > 10)
+				undoStack.Pop();
+			while (redoStack.Count > 10)
+				redoStack.Pop();
+		}
 
 		bool LoadPlot()
 		{
@@ -137,8 +181,6 @@ namespace plot
 			selectNode(null);
 		}
 
-
-
 		private void Form1_Load(object sender, EventArgs e)
 		{
 			if (!LoadPlot())
@@ -194,8 +236,6 @@ namespace plot
 				dy /= l;
 
 				var dist = e.Distance;
-
-
 				dx *= l - (dist * 0.5);
 				dy *= l - (dist * 0.5);
 
@@ -408,6 +448,7 @@ namespace plot
 				return;
 			var p = PointToScreen(new Point(e.Location.X + p_view.Location.X, e.Location.Y + p_view.Location.Y));
 			var pf = FromView(new PointF(e.Location.X, e.Location.Y));
+			PushUndoStack();
 			var n = new node { X = pf.X, Y = pf.Y, Circumference = 0, locked = false, name = $"{graph.nodes.Count}" };
 			graph.nodes.Add(n);
 			selectNode(n);
@@ -516,9 +557,15 @@ namespace plot
 		private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (selectedNode != null)
+			{
+				PushUndoStack();
 				removeNode(selectedNode);
+			}
 			if (selectedEdge != null)
+			{
+				PushUndoStack();
 				removeEdge(selectedEdge);
+			}
 		}
 
 		private void textBox1_KeyDown(object sender, KeyEventArgs e)
@@ -549,13 +596,14 @@ namespace plot
 					if (other != null)
 					{
 						var newedge = new edgeNodes { nodes = new node[] { dragNode, other } };
+						PushUndoStack();
 						graph.edges.Add(newedge);
 						selectEdge(newedge);
-
 					}
 					else if (othere != null)
 					{
 						var newedge = new edgeNodeEdge { Node = dragNode, Edge = othere };
+						PushUndoStack();
 						graph.edges.Add(newedge);
 						selectEdge(newedge);
 					}
@@ -746,11 +794,26 @@ namespace plot
 
 		private void Form1_KeyDown(object sender, KeyEventArgs e)
 		{
-
 			if (ModifierKeys == Keys.Control && e.KeyCode == Keys.F)
 			{
 				textBox1.Focus();
 				textBox1.SelectAll();
+			}
+
+			if (ModifierKeys == Keys.Control && e.KeyCode == Keys.Z)
+			{
+				selectEdge(null);
+				selectNode(null);
+				PopUndoStack();
+				Invalidate();
+			}
+
+			if (ModifierKeys == Keys.Control && e.KeyCode == Keys.Y)
+			{
+				selectEdge(null);
+				selectNode(null);
+				PopRedoStack();
+				Invalidate();
 			}
 
 			if (e.KeyCode == Keys.Home)
