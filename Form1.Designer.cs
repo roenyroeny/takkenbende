@@ -82,7 +82,7 @@ namespace plot
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
 			this.panel1.Location = new System.Drawing.Point(0, 24);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(200, 1470);
+			this.panel1.Size = new System.Drawing.Size(200, 1517);
 			this.panel1.TabIndex = 0;
 			// 
 			// g_node
@@ -291,7 +291,7 @@ namespace plot
 			this.groupBox2.Controls.Add(this.checkBox2);
 			this.groupBox2.Controls.Add(this.checkBox1);
 			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.groupBox2.Location = new System.Drawing.Point(0, 1399);
+			this.groupBox2.Location = new System.Drawing.Point(0, 1446);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(200, 71);
 			this.groupBox2.TabIndex = 3;
@@ -328,7 +328,7 @@ namespace plot
 			// 
 			this.splitter1.Location = new System.Drawing.Point(200, 24);
 			this.splitter1.Name = "splitter1";
-			this.splitter1.Size = new System.Drawing.Size(3, 1470);
+			this.splitter1.Size = new System.Drawing.Size(3, 1517);
 			this.splitter1.TabIndex = 1;
 			this.splitter1.TabStop = false;
 			// 
@@ -337,7 +337,7 @@ namespace plot
 			this.p_view.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.p_view.Location = new System.Drawing.Point(203, 24);
 			this.p_view.Name = "p_view";
-			this.p_view.Size = new System.Drawing.Size(1515, 1470);
+			this.p_view.Size = new System.Drawing.Size(1361, 1517);
 			this.p_view.TabIndex = 2;
 			this.p_view.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
 			this.p_view.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseDoubleClick);
@@ -381,7 +381,7 @@ namespace plot
             this.fileToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(1718, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(1564, 24);
 			this.menuStrip1.TabIndex = 3;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -397,14 +397,14 @@ namespace plot
 			// printToolStripMenuItem
 			// 
 			this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-			this.printToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.printToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
 			this.printToolStripMenuItem.Text = "Print";
 			this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
 			// 
 			// saveOBJToolStripMenuItem
 			// 
 			this.saveOBJToolStripMenuItem.Name = "saveOBJToolStripMenuItem";
-			this.saveOBJToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveOBJToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
 			this.saveOBJToolStripMenuItem.Text = "Export OBJ";
 			this.saveOBJToolStripMenuItem.Click += new System.EventHandler(this.saveOBJToolStripMenuItem_Click);
 			// 
@@ -412,7 +412,7 @@ namespace plot
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1718, 1494);
+			this.ClientSize = new System.Drawing.Size(1564, 1541);
 			this.Controls.Add(this.p_view);
 			this.Controls.Add(this.splitter1);
 			this.Controls.Add(this.panel1);

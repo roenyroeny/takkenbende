@@ -1,3 +1,6 @@
 ﻿plot/.vs
 plot/bin
 plot/obj
+bin
+build
+obj

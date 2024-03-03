@@ -345,6 +345,7 @@ namespace plot
 				var brush = Brushes.Black;
 				if (!n.visible)
 				{
+					continue;
 					pen = new Pen(new SolidBrush(Color.LightGray), t);
 					brush = Brushes.LightGray;
 				}
