@@ -122,6 +122,7 @@ namespace plot
 				t_name.Text = n.name;
 				t_info.Text = n.info;
 				c_locked.Checked = n.locked;
+				c_crossed.Checked = n.cross;
 				t_circ.Focus();
 			}
 		}
@@ -366,6 +367,11 @@ namespace plot
 					var p1 = ToView(new PointF((float)(n.X - n.Radius), (float)(n.Y - n.Radius)));
 					var p2 = ToView(new PointF((float)(n.X + n.Radius), (float)(n.Y + n.Radius)));
 					g.DrawEllipse(pen, new RectangleF(new PointF(p1.X, p1.Y), new SizeF(p2.X - p1.X, p2.Y - p1.Y)));
+					if (n.cross)
+					{
+						g.DrawLine(pen, new PointF(p1.X, p1.Y), new PointF(p2.X, p2.Y));
+						g.DrawLine(pen, new PointF(p1.X, p2.Y), new PointF(p2.X, p1.Y));
+					}
 				}
 
 				if (n.Circumference != 0 && checkBox2.Checked)
@@ -388,6 +394,12 @@ namespace plot
 					new Pen(new SolidBrush(Color.Red), t) :
 					new Pen(new SolidBrush(Color.FromArgb(255, stress, 0, 0)), t);
 
+				if (n.Distance == 0 && !locked)
+				{
+					float[] dashValues = { 8, 8 };
+					pen = new Pen(new SolidBrush(Color.Black), t);
+					pen.DashPattern = dashValues;
+				}
 				var brush = Brushes.Black;
 
 				if (!n.Nodes.All(a => a.visible))
@@ -780,6 +792,14 @@ namespace plot
 				System.IO.File.WriteAllText(saveFileDialog1.FileName, graph.OBJ);
 			}
 
+		}
+
+		private void c_crossed_CheckedChanged(object sender, EventArgs e)
+		{
+			if (selectedNode != null)
+			{
+				selectedNode.cross = c_crossed.Checked;
+			}
 		}
 
 		private void printToolStripMenuItem_Click(object sender, EventArgs e)

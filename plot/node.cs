@@ -27,7 +27,9 @@ namespace plot
 					var name = n.Attribute("n").Value;
 					var locked = bool.Parse(n.Attribute("l").Value);
 					var info = n.Attribute("i").Value;
-					var nn = new node { X = x, Y = y, Circumference = c, name = name, locked = locked, info = info };
+					bool cross = false;
+					try { cross = bool.Parse(n.Attribute("C").Value); } catch { };
+					var nn = new node { X = x, Y = y, Circumference = c, name = name, locked = locked, info = info, cross = cross };
 					g.nodes.Add(nn);
 				}
 
@@ -72,6 +74,7 @@ namespace plot
 					e.SetAttributeValue("n", n.name);
 					e.SetAttributeValue("l", n.locked);
 					e.SetAttributeValue("i", n.info);
+					e.SetAttributeValue("C", n.cross);
 					file.Add(e);
 				}
 				foreach (var edge in edges)
@@ -148,6 +151,7 @@ namespace plot
 		public bool locked;
 		public string name = "";
 		public string info = "";
+		public bool cross = false;
 		public double Radius
 		{
 			get { return Circumference / (Math.PI * 2); }
